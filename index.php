@@ -26,6 +26,27 @@ try {
         case 'file_list':
             echo json_encode(Webgrind_FileHandler::getInstance()->getTraceList());
             break;
+        case 'source_code_files':
+            $dataFile = get('dataFile');
+            if($dataFile=='0'){
+                $files = Webgrind_FileHandler::getInstance()->getTraceList();
+                $dataFile = $files[0]['filename'];
+            }
+            $reader = Webgrind_FileHandler::getInstance()->getTraceReader($dataFile, get('costFormat', Webgrind_Config::$defaultCostformat));
+            $files = array();
+            for($i=0;$i<$reader->getFunctionCount();$i++) {
+                $functionInfo = $reader->getFunctionInfo($i);
+                if($functionInfo['file'] != 'php:internal') {
+                  $files[$functionInfo['file']] = 1;
+                }
+            }
+            $files = array_keys($files);
+            asort($files);
+            foreach($files as $file) {
+              print "$file<br/>\n";
+            }
+            break;
+
         case 'function_list':
             $dataFile = get('dataFile');
             if($dataFile=='0'){
